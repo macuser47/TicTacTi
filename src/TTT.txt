@@ -1,0 +1,431 @@
+//I put a lot of comments in this,
+//but they were mostly for myslef
+//because ti basic is a nightmare to read
+//so read at your own risk :D
+//-macuser47
+
+//clear screen
+ClrDraw
+AxesOff
+
+//set up graphing window
+0→Xmin
+0→Ymin
+63→Ymax
+96→Xmax
+
+//draws a border around the screen (95x63)
+For(I,1,94)
+Pxl-On(1,I)
+Pxl-On(62,I)
+End
+
+For(I,1,62)
+Pxl-On(I,1)
+Pxl-On(I,94)
+End
+
+//Draw board
+For(I,22,73)
+Pxl-On(23,I)
+Pxl-On(40,I)
+End
+
+For(I,6,57)
+Pxl-On(I,39)
+Pxl-On(I,56)
+End
+
+//random start
+//x goes first
+//for A and P
+//1 - X
+//2 - O
+randInt(1,2)→A
+3-A→P
+
+//current turn, 1-player, 0-AI
+If A=1
+Then
+0→C
+Else
+1→C
+End
+
+//init selector variables
+//position stored in L1 and S
+{2,2}→L₁
+5→S
+//NOTE: S will NOT be constantly updated! Only use when calculated.
+
+
+//init grid
+//stored in 1-9 in L1
+//0-empty
+//1-X
+//2-O
+{0,0,0,0,0,0,0,0,0}→L₂
+
+//set win and game over
+//W : 0-loss 1-win 2-stalemate
+0→W
+0→G
+
+
+//main loop
+Repeat K=45 or G=1
+
+getKey→K
+
+//Text(50,50," ")
+//Text(50,50,C)
+
+//check turn
+If C=1
+Then
+//player turn
+
+//remove old selector
+If max(K={24,25,26,34})
+Then
+22+(17*(L₁(1)-1))→X
+6+(17*(L₁(2)-1))→Y
+
+For(I,X+1,X+17-1)
+Pxl-Off(Y+1,I)
+Pxl-Off(Y+17-1,I)
+End
+
+For(I,Y+1,Y+17-1)
+Pxl-Off(I,X+1)
+Pxl-Off(I,X+17-1)
+End
+End
+
+//check input
+
+L₁(2)+(K=34 and L₁(2)<3)→L₁(2)
+
+L₁(2)-(K=25 and L₁(2)>1)→L₁(2)
+
+L₁(1)-(K=24 and L₁(1)>1)→L₁(1)
+
+L₁(1)+(K=26 and L₁(1)<3)→L₁(1)
+
+
+//draw selector
+22+(17*(L₁(1)-1))→X
+6+(17*(L₁(2)-1))→Y
+
+For(I,X+1,X+17-1)
+Pxl-On(Y+1,I)
+Pxl-On(Y+17-1,I)
+End
+
+For(I,Y+1,Y+17-1)
+Pxl-On(I,X+1)
+Pxl-On(I,X+17-1)
+End
+
+//check enter
+
+If K=105
+Then
+L₁(1)+(3*(L₁(2)-1))→S
+If L₂(S)=0
+Then
+22+(17*(L₁(1)-1))→X
+6+(17*(L₁(2)-1))→Y
+If P=1
+Then
+Line(X+3,Ymax-(Y+3),X+17-3,Ymax-(Y+17-3))
+Line(X+3+1,Ymax-(Y+3),X+17-3+1,Ymax-(Y+17-3))
+
+Line(X+3,Ymax-(Y+17-3),X+17-3,Ymax-(Y+3))
+Line(X+3-1,Ymax-(Y+17-3),X+17-3-1,Ymax-(Y+3))
+Else
+Circle(X+9,Ymax-(Y+9),6)
+End
+//update array and toggle current turn
+P→L₂(S)
+((C-1)/⁻1)→C
+
+End
+End
+
+
+Else
+
+//arrays corrleate to matching rows
+{1,4,7,1,2,3,1,3}→L₃
+{2,5,8,4,5,6,5,5}→L₄
+{3,6,9,7,8,9,9,7}→L₅
+
+//AI
+
+//U variable to keep track of if AI has already played
+0→U
+
+//check if two in a row with a space - (if enemy, defense, else it's a win), sets 0 value to E
+⁻1→E
+For(I,1,8)
+If L₂(L₃(I))=L₂(L₄(I)) and L₂(L₅(I))=0 and not(L₂(L₃(I))=0)
+Then
+L₅(I)→E
+//two row if checker
+End
+
+If L₂(L₃(I))=L₂(L₅(I)) and L₂(L₄(I))=0 and not(L₂(L₃(I))=0)
+Then
+L₄(I)→E
+//two row if checker
+End
+
+If L₂(L₄(I))=L₂(L₅(I)) and L₂(L₃(I))=0 and not(L₂(L₄(I))=0)
+Then
+L₃(I)→E
+//two row if checker
+End
+
+//for loop
+End
+
+//take the E slot
+If not(E=⁻1)
+Then
+remainder(E,3)+3*(remainder(E,3)=0)→X
+int(E/3)+not(int(E/3)=(E/3))→Y
+
+22+(17*(X-1))→X
+6+(17*(Y-1))→Y
+
+If A=1
+Then
+Line(X+3,Ymax-(Y+3),X+17-3,Ymax-(Y+17-3))
+Line(X+3+1,Ymax-(Y+3),X+17-3+1,Ymax-(Y+17-3))
+
+Line(X+3,Ymax-(Y+17-3),X+17-3,Ymax-(Y+3))
+Line(X+3-1,Ymax-(Y+17-3),X+17-3-1,Ymax-(Y+3))
+Else
+Circle(X+9,Ymax-(Y+9),6)
+End
+
+
+//update array and toggle current turn
+A→L₂(E)
+((C-1)/⁻1)→C
+
+1→U
+
+//end of E if
+End
+
+
+
+
+
+//check if middle is empty--TAKE IT
+If U=0
+Then
+If L₂(5)=0
+Then
+remainder(5,3)+3*(remainder(5,3)=0)→X
+int(5/3)+not(int(5/3)=(5/3))→Y
+
+22+(17*(X-1))→X
+6+(17*(Y-1))→Y
+
+If A=1
+Then
+Line(X+3,Ymax-(Y+3),X+17-3,Ymax-(Y+17-3))
+Line(X+3+1,Ymax-(Y+3),X+17-3+1,Ymax-(Y+17-3))
+
+Line(X+3,Ymax-(Y+17-3),X+17-3,Ymax-(Y+3))
+Line(X+3-1,Ymax-(Y+17-3),X+17-3-1,Ymax-(Y+3))
+Else
+Circle(X+9,Ymax-(Y+9),6)
+End
+
+//update array and toggle current turn
+A→L₂(5)
+((C-1)/⁻1)→C
+
+1→U
+
+//end l2(5) if
+End
+//U checker
+End
+
+
+//if worst comes to worst-- just pick a spot
+//pick a random square
+Repeat L₂(R)=0
+randInt(1,9)→R
+End
+
+If U=0
+Then
+If L₂(R)=0
+Then
+remainder(R,3)+3*(remainder(R,3)=0)→X
+//X+3*(X=0)→X
+int(R/3)+not(int(R/3)=(R/3))→Y
+//Text(5,5,R)
+//Text(15,15,X)
+//Text(30,30,Y)
+
+22+(17*(X-1))→X
+6+(17*(Y-1))→Y
+If A=1
+Then
+Line(X+3,Ymax-(Y+3),X+17-3,Ymax-(Y+17-3))
+Line(X+3+1,Ymax-(Y+3),X+17-3+1,Ymax-(Y+17-3))
+
+Line(X+3,Ymax-(Y+17-3),X+17-3,Ymax-(Y+3))
+Line(X+3-1,Ymax-(Y+17-3),X+17-3-1,Ymax-(Y+3))
+Else
+Circle(X+9,Ymax-(Y+9),6)
+End
+//update array and toggle current turn
+A→L₂(R)
+((C-1)/⁻1)→C
+
+//if l2(r)=0
+End
+
+//if for U check
+End
+
+
+//else - turns
+End
+
+
+//check for stalemate
+If not(min(L₂)=0)
+Then
+Text(15,15,"herp the derp?")
+1→G
+2→W
+End
+
+
+//check for win
+
+
+//check if any rows are all the same, if so YOU'RE WINNER
+For(I,1,8)
+If L₂(L₃(I))=L₂(L₄(I)) and L₂(L₄(I))=L₂(L₅(I)) and L₂(L₃(I))=L₂(L₅(I)) and not(L₂(L₃(I))=0)
+Then
+{L₃(I),L₅(I)}→L₆
+1→G
+(L₂(L₃(I))=P)→W
+End
+End
+
+If G
+Then
+
+//check if win or loss, not stalemate
+If W<2
+Then
+//draw line
+remainder(L₆(1),3)+3*(remainder(L₆(1),3)=0)→X
+int(L₆(1)/3)+not(int(L₆(1)/3)=(L₆(1)/3))→Y
+
+remainder(L₆(2),3)+3*(remainder(L₆(2),3)=0)→J
+int(L₆(2)/3)+not(int(L₆(2)/3)=(L₆(2)/3))→θ
+
+
+22+(17*(X-1))→X
+6+(17*(Y-1))→Y
+22+(17*(J-1))→J
+6+(17*(θ-1))→θ
+
+X+9→X
+Y+9→Y
+J+9→J
+θ+9→θ
+
+Ymax-Y→Y
+Ymax-θ→θ
+
+//multiple lines to ceate thickness
+Line(X-1,Y,J-1,θ)
+Line(X,Y,J,θ)
+Line(X+1,Y,J+1,θ)
+
+//end of W check
+End
+
+//pause for a moment before boxes pop up 
+//(I'm not using timer for compatibility with TI-83)
+
+For(I,0,200)
+I→U
+End
+
+
+//draw box
+For(I,21,42)
+Pxl-On(I,20)
+Pxl-On(I,75)
+End
+
+For(I,20,75)
+Pxl-On(21,I)
+Pxl-On(42,I)
+End
+
+//clear inside
+For(X,20+1,75-1)
+For(Y,21+1,42-1)
+Pxl-Off(Y,X)
+End
+End
+
+
+If W=1
+Then
+Text(28,36,"You Win!")
+
+
+//end W if
+End
+
+If W=0
+Then
+Text(28,26,"Well, you lost.")
+
+//end W if
+End
+
+If W=2
+Then
+Text(28,30,"Stalemate!")
+//end W if
+End
+
+//end G if
+End
+
+
+//loop
+End
+
+//pause for popup box (if any)
+If not(K=45)
+Then
+getKey→K
+While K=0
+getKey→K
+End
+End
+
+//cleanup
+ClrDraw
+AxesOn
+
+//return to home
+ClrHome
