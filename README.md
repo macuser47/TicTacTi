@@ -1,7 +1,7 @@
 # TicTacTi
 Ever wanted to play tic-tac-toe on a TI calculator? I'm sure someone else has done it, but here it is anyway.
 
-This is my first shot at a full-blown TI-83 - 84 Program. I've made simple Ti Basix programs in the past, for factoring numbers and vector calculations and such, but nothing that constituted a fully complete program.
+This is my first shot at a full-blown TI-83 - 84 Program. I've made simple Ti Basic programs in the past, for factoring numbers and vector calculations and such, but nothing that constituted a fully complete program.
 
 The game is simple. At the start of the game you are randomly chosen as X's or O's and use a selctor to place your symbols, playing against a basic AI.
 
